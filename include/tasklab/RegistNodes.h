@@ -2,6 +2,8 @@
 
 #include "tasklab/Node.h"
 
+#include <taskgraph/task/WriteImage.h>
+
 namespace tasklab
 {
 

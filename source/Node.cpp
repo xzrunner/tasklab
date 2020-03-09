@@ -22,8 +22,17 @@ void Node::InitPins(const std::string& name)
 
         switch (back.var.type)
         {
-        case taskgraph::ParamType::Path:
-            front.type = PIN_PATH;
+        case taskgraph::ParamType::Any:
+            front.type = bp::PIN_ANY_VAR;
+            break;
+        case taskgraph::ParamType::File:
+            front.type = PIN_FILE;
+            break;
+        case taskgraph::ParamType::Image:
+            front.type = PIN_IMAGE;
+            break;
+        case taskgraph::ParamType::ImageArray:
+            front.type = PIN_IMAGES;
             break;
         default:
             assert(0);

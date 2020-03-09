@@ -22,6 +22,12 @@
     <Filter Include="view\preview">
       <UniqueIdentifier>{053b5c88-7424-47dc-8065-a6a14361d008}</UniqueIdentifier>
     </Filter>
+    <Filter Include="nodes">
+      <UniqueIdentifier>{e270c403-d6ab-4144-a157-07d2a7cbe684}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="view\preview\renderer">
+      <UniqueIdentifier>{aed4e37c-1e14-47ad-8f19-1feeb6b6bbb7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\tasklab\Node.h">
@@ -58,6 +64,12 @@
     <ClInclude Include="..\..\..\include\tasklab\MessageID.h">
       <Filter>tools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\tasklab\node\DebugDraw.h">
+      <Filter>nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\tasklab\DebugRenderer.h">
+      <Filter>view\preview\renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\Node.cpp">
@@ -76,5 +88,8 @@
       <Filter>view\preview</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\TaskLab.cpp" />
+    <ClCompile Include="..\..\..\source\DebugRenderer.cpp">
+      <Filter>view\preview\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

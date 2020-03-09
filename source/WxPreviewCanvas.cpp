@@ -2,12 +2,15 @@
 #include "tasklab/PreviewPage.h"
 #include "tasklab/Node.h"
 #include "tasklab/RegistNodes.h"
+#include "tasklab/node/DebugDraw.h"
 
 #include <ee0/WxStagePage.h>
 #include <ee0/SubjectMgr.h>
+#include <ee2/CamControlOP.h>
 #include <blueprint/Node.h>
 #include <blueprint/CompNode.h>
 
+#include <painting2/OrthoCamera.h>
 #include <painting2/RenderSystem.h>
 #include <painting3/MaterialMgr.h>
 #include <painting3/Blackboard.h>
@@ -34,6 +37,8 @@ WxPreviewCanvas::WxPreviewCanvas(ee0::WxStagePage* stage, ECS_WORLD_PARAM
                                  const ee0::RenderContext& rc)
     : ee3::WxStageCanvas(stage, ECS_WORLD_VAR &rc, nullptr, true)
 {
+    m_cam3d = m_camera;
+    m_cam2d = std::make_shared<pt2::OrthoCamera>();
 }
 
 WxPreviewCanvas::~WxPreviewCanvas()
@@ -70,9 +75,15 @@ void WxPreviewCanvas::SetGraphPage(const bp::WxGraphPage<taskgraph::ParamType>* 
     sub_mgr->RegisterObserver(ee0::MSG_NODE_SELECTION_CLEAR, this);
 }
 
-void WxPreviewCanvas::InitEditOP(const ee0::EditOPPtr& default_op)
+void WxPreviewCanvas::InitEditOP()
 {
-    m_ops[OP_DEFAULT] = default_op;
+    auto cam = m_camera;
+    auto& vp = GetViewport();
+    auto sub = m_stage->GetSubjectMgr();
+
+    m_ops[OP_DEFAULT] = std::make_shared<ee2::CamControlOP>(m_cam2d, sub);
+
+    m_stage->GetImpl().SetEditOP(m_ops[OP_DEFAULT]);
 }
 
 void WxPreviewCanvas::DrawBackground3D() const
@@ -83,6 +94,38 @@ void WxPreviewCanvas::DrawBackground3D() const
 
 void WxPreviewCanvas::DrawForeground3D() const
 {
+    pt0::RenderContext rc;
+    rc.AddVar(
+        pt3::MaterialMgr::PositionUniforms::light_pos.name,
+        pt0::RenderVariant(sm::vec3(0, 2, -4))
+    );
+    if (m_camera->TypeID() == pt0::GetCamTypeID<pt3::PerspCam>())
+    {
+        auto persp = std::static_pointer_cast<pt3::PerspCam>(m_camera);
+        rc.AddVar(
+            pt3::MaterialMgr::PositionUniforms::cam_pos.name,
+            pt0::RenderVariant(persp->GetPos())
+        );
+    }
+
+    auto& wc = std::const_pointer_cast<pt3::WindowContext>(GetWidnowContext().wc3);
+    assert(wc);
+    rc.AddVar(
+        pt3::MaterialMgr::PosTransUniforms::view.name,
+        pt0::RenderVariant(wc->GetViewMat())
+    );
+    rc.AddVar(
+        pt3::MaterialMgr::PosTransUniforms::projection.name,
+        pt0::RenderVariant(wc->GetProjMat())
+    );
+
+    tess::Painter pt;
+
+    auto cam_mat = m_camera->GetProjectionMat() * m_camera->GetViewMat();
+
+    DrawSelected(pt, cam_mat, rc);
+
+    pt2::RenderSystem::DrawPainter(pt);
 }
 
 void WxPreviewCanvas::DrawForeground2D() const
@@ -109,6 +152,34 @@ void WxPreviewCanvas::OnSelectionClear(const ee0::VariantSet& variants)
 void WxPreviewCanvas::DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
                                    const pt0::RenderContext& rc) const
 {
+    auto node = GetSelectedNode();
+    if (!node) {
+        return;
+    }
+
+    auto type = node->get_type();
+    if (type == rttr::type::get<node::DebugDraw>())
+    {
+        auto& inputs = node->GetAllInput();
+        assert(inputs.size() == 1);
+        auto& conns = inputs[0]->GetConnecting();
+        if (!conns.empty())
+        {
+            assert(conns.size() == 1);
+            auto src_pin = conns[0]->GetFrom();
+            auto eval = m_graph_page->GetEval();
+            auto back = std::static_pointer_cast<taskgraph::Task>(eval->QueryBackNode(src_pin->GetParent()));
+            auto& src_vals = back->GetAllValues();
+            const int idx = src_pin->GetPosIdx();
+            assert(idx >= 0 && idx < static_cast<int>(src_vals.size()));
+
+            m_debug_rd.Draw(src_vals[idx]);
+
+            return;
+        }
+
+        return;
+    }
 }
 
 void WxPreviewCanvas::SetupRenderer()

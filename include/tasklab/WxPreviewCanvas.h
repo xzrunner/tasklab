@@ -1,5 +1,7 @@
 #pragma once
 
+#include "tasklab/DebugRenderer.h"
+
 #include <ee3/WxStageCanvas.h>
 #include <blueprint/WxGraphPage.h>
 
@@ -22,7 +24,7 @@ public:
 
     void SetGraphPage(const bp::WxGraphPage<taskgraph::ParamType>* graph_page);
 
-    void InitEditOP(const ee0::EditOPPtr& default_op);
+    void InitEditOP();
 
 protected:
     virtual void DrawBackground3D() const override;
@@ -55,6 +57,11 @@ private:
     n0::SceneNodePtr m_selected = nullptr;
 
     std::array<ee0::EditOPPtr, OP_MAX_NUM> m_ops;
+
+    DebugRenderer m_debug_rd;
+
+    pt0::CameraPtr m_cam2d = nullptr;
+    pt0::CameraPtr m_cam3d = nullptr;
 
 }; // WxPreviewCanvas
 

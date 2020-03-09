@@ -1,4 +1,5 @@
 #include "tasklab/RegistNodes.h"
+#include "tasklab/node/DebugDraw.h"
 
 #include <ee0/ReflectPropTypes.h>
 
@@ -21,6 +22,10 @@ rttr::registration::class_<tasklab::Node>("tasklab::node")
 #include "tasklab/node_regist_cfg.h"
 #undef SKIP_FILE_NODE
 #undef EXE_FILEPATH
+
+rttr::registration::class_<tasklab::node::DebugDraw>("tasklab::debug_draw")
+    .constructor<>()
+;
 
 }
 
