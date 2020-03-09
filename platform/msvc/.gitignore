@@ -1,0 +1,5 @@
+tasklab/
+projects/*
+
+!projects/tasklab.vcxproj
+!projects/tasklab.vcxproj.filters
