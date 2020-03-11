@@ -32,8 +32,8 @@ protected:
     virtual void DrawForeground2D() const override;
 
 private:
-    void OnSelectionInsert(const ee0::VariantSet& variants);
-    void OnSelectionClear(const ee0::VariantSet& variants);
+    bool OnSelectionInsert(const ee0::VariantSet& variants);
+    bool OnSelectionClear(const ee0::VariantSet& variants);
 
     void DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
         const pt0::RenderContext& rc) const;

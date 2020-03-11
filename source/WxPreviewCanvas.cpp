@@ -55,15 +55,23 @@ void WxPreviewCanvas::OnNotify(uint32_t msg, const ee0::VariantSet& variants)
 {
     ee3::WxStageCanvas::OnNotify(msg, variants);
 
+    bool dirty = false;
 	switch (msg)
 	{
 	case ee0::MSG_NODE_SELECTION_INSERT:
-		OnSelectionInsert(variants);
+        dirty = OnSelectionInsert(variants);
 		break;
     case ee0::MSG_NODE_SELECTION_CLEAR:
-        OnSelectionClear(variants);
+        dirty = OnSelectionClear(variants);
+        break;
+    case bp::MSG_BP_NODE_PROP_CHANGED:
+        dirty = true;
         break;
 	}
+
+    if (dirty) {
+        SetDirty();
+    }
 }
 
 void WxPreviewCanvas::SetGraphPage(const bp::WxGraphPage<taskgraph::ParamType>* graph_page)
@@ -73,6 +81,7 @@ void WxPreviewCanvas::SetGraphPage(const bp::WxGraphPage<taskgraph::ParamType>* 
     auto sub_mgr = graph_page->GetSubjectMgr();
     sub_mgr->RegisterObserver(ee0::MSG_NODE_SELECTION_INSERT, this);
     sub_mgr->RegisterObserver(ee0::MSG_NODE_SELECTION_CLEAR, this);
+    sub_mgr->RegisterObserver(bp::MSG_BP_NODE_PROP_CHANGED, this);
 }
 
 void WxPreviewCanvas::InitEditOP()
@@ -132,7 +141,7 @@ void WxPreviewCanvas::DrawForeground2D() const
 {
 }
 
-void WxPreviewCanvas::OnSelectionInsert(const ee0::VariantSet& variants)
+bool WxPreviewCanvas::OnSelectionInsert(const ee0::VariantSet& variants)
 {
     auto var_obj = variants.GetVariant("obj");
     GD_ASSERT(var_obj.m_type == ee0::VT_PVOID, "no var in vars: obj");
@@ -142,11 +151,15 @@ void WxPreviewCanvas::OnSelectionInsert(const ee0::VariantSet& variants)
     m_selected = obj;
 
     SetupRenderer();
+
+    return true;
 }
 
-void WxPreviewCanvas::OnSelectionClear(const ee0::VariantSet& variants)
+bool WxPreviewCanvas::OnSelectionClear(const ee0::VariantSet& variants)
 {
-    m_selected.reset();
+//    m_selected.reset();
+
+    return false;
 }
 
 void WxPreviewCanvas::DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
