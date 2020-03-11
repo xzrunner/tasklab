@@ -22,10 +22,10 @@ void Node::InitPins(const std::string& name)
 
         if (back.var.type == 0) {
             front.type = bp::PIN_ANY_VAR;
-        } else if (back.var.type & taskgraph::ParamType::File) {
+        } else if (back.var.type & taskgraph::PT_FILE) {
             front.type = PIN_FILE;
-        } else if ((back.var.type & taskgraph::ParamType::Image) ||
-                   (back.var.type & taskgraph::ParamType::ImageArray)) {
+        } else if ((back.var.type & taskgraph::PT_IMAGE) ||
+                   (back.var.type & taskgraph::PT_IMAGE_ARRAY)) {
             front.type = PIN_IMAGE;
         } else {
             assert(0);

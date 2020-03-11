@@ -50,13 +50,13 @@ void ImageRenderer::UpdateRenderList() const
 
     switch (m_cached->Type())
     {
-    case taskgraph::ParamType::Image:
+    case taskgraph::PT_IMAGE:
     {
         auto img = std::static_pointer_cast<taskgraph::ImageParam>(m_cached);
         m_renderable.push_back(CreateTexture(*img->GetImage()));
     }
         break;
-    case taskgraph::ParamType::ImageArray:
+    case taskgraph::PT_IMAGE_ARRAY:
     {
         auto imgs = std::static_pointer_cast<taskgraph::ImageArrayParam>(m_cached);
         for (auto& img : imgs->GetAllImages()) {

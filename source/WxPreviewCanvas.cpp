@@ -201,8 +201,8 @@ void WxPreviewCanvas::DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
         for (auto& val : vals)
         {
             auto type = val->Type();
-            if (type == taskgraph::Image ||
-                type == taskgraph::ImageArray)
+            if (type == taskgraph::PT_IMAGE ||
+                type == taskgraph::PT_IMAGE_ARRAY)
             {
                 m_img_rd.Draw(val);
                 return;
