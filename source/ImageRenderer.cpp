@@ -53,14 +53,14 @@ void ImageRenderer::UpdateRenderList() const
     case taskgraph::PT_IMAGE:
     {
         auto img = std::static_pointer_cast<taskgraph::ImageParam>(m_cached);
-        m_renderable.push_back(CreateTexture(*img->GetImage()));
+        m_renderable.push_back(CreateTexture(img->GetImage()->bmp));
     }
         break;
     case taskgraph::PT_IMAGE_ARRAY:
     {
         auto imgs = std::static_pointer_cast<taskgraph::ImageArrayParam>(m_cached);
         for (auto& img : imgs->GetAllImages()) {
-            m_renderable.push_back(CreateTexture(*img));
+            m_renderable.push_back(CreateTexture(img->bmp));
         }
     }
         break;
