@@ -1,11 +1,10 @@
 #pragma once
 
-#include "tasklab/DebugRenderer.h"
+#include "tasklab/ImageRenderer.h"
 
 #include <ee3/WxStageCanvas.h>
 #include <blueprint/WxGraphPage.h>
 
-#include <taskgraph/ParamType.h>
 #include <taskgraph/typedef.h>
 
 namespace tasklab
@@ -22,7 +21,7 @@ public:
 
     virtual void OnNotify(uint32_t msg, const ee0::VariantSet& variants) override;
 
-    void SetGraphPage(const bp::WxGraphPage<taskgraph::ParamType>* graph_page);
+    void SetGraphPage(const bp::WxGraphPage<size_t>* graph_page);
 
     void InitEditOP();
 
@@ -41,7 +40,7 @@ private:
     void SetupRenderer();
 
     bp::NodePtr GetSelectedNode() const;
-    taskgraph::TaskPtr GetSelectedOp() const;
+    taskgraph::TaskPtr GetSelectedTask() const;
 
 private:
     enum OperatorID
@@ -52,13 +51,13 @@ private:
     };
 
 private:
-    const bp::WxGraphPage<taskgraph::ParamType>* m_graph_page = nullptr;
+    const bp::WxGraphPage<size_t>* m_graph_page = nullptr;
 
     n0::SceneNodePtr m_selected = nullptr;
 
     std::array<ee0::EditOPPtr, OP_MAX_NUM> m_ops;
 
-    DebugRenderer m_debug_rd;
+    ImageRenderer m_img_rd;
 
     pt0::CameraPtr m_cam2d = nullptr;
     pt0::CameraPtr m_cam3d = nullptr;

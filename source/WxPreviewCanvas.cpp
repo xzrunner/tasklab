@@ -74,7 +74,7 @@ void WxPreviewCanvas::OnNotify(uint32_t msg, const ee0::VariantSet& variants)
     }
 }
 
-void WxPreviewCanvas::SetGraphPage(const bp::WxGraphPage<taskgraph::ParamType>* graph_page)
+void WxPreviewCanvas::SetGraphPage(const bp::WxGraphPage<size_t>* graph_page)
 {
     m_graph_page = graph_page;
 
@@ -186,21 +186,33 @@ void WxPreviewCanvas::DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
             const int idx = src_pin->GetPosIdx();
             assert(idx >= 0 && idx < static_cast<int>(src_vals.size()));
 
-            m_debug_rd.Draw(src_vals[idx]);
+            m_img_rd.Draw(src_vals[idx]);
 
             return;
         }
 
         return;
     }
+
+    auto task = GetSelectedTask();
+    if (task)
+    {
+        auto& vals = task->GetAllValues();
+        for (auto& val : vals)
+        {
+            auto type = val->Type();
+            if (type == taskgraph::Image ||
+                type == taskgraph::ImageArray)
+            {
+                m_img_rd.Draw(val);
+                return;
+            }
+        }
+    }
 }
 
 void WxPreviewCanvas::SetupRenderer()
 {
-    auto op = GetSelectedOp();
-    if (!op) {
-        return;
-    }
 }
 
 bp::NodePtr WxPreviewCanvas::GetSelectedNode() const
@@ -223,7 +235,7 @@ bp::NodePtr WxPreviewCanvas::GetSelectedNode() const
     return cnode.GetNode();
 }
 
-taskgraph::TaskPtr WxPreviewCanvas::GetSelectedOp() const
+taskgraph::TaskPtr WxPreviewCanvas::GetSelectedTask() const
 {
     if (!m_graph_page) {
         return nullptr;

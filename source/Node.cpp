@@ -16,25 +16,18 @@ Node::Node(const std::string& title)
 
 void Node::InitPins(const std::string& name)
 {
-    auto back2front = [](const dag::Node<taskgraph::ParamType>::Port& back) -> bp::PinDesc
+    auto back2front = [](const dag::Node<size_t>::Port& back) -> bp::PinDesc
     {
         bp::PinDesc front;
 
-        switch (back.var.type)
-        {
-        case taskgraph::ParamType::Any:
+        if (back.var.type == 0) {
             front.type = bp::PIN_ANY_VAR;
-            break;
-        case taskgraph::ParamType::File:
+        } else if (back.var.type & taskgraph::ParamType::File) {
             front.type = PIN_FILE;
-            break;
-        case taskgraph::ParamType::Image:
+        } else if ((back.var.type & taskgraph::ParamType::Image) ||
+                   (back.var.type & taskgraph::ParamType::ImageArray)) {
             front.type = PIN_IMAGE;
-            break;
-        case taskgraph::ParamType::ImageArray:
-            front.type = PIN_IMAGES;
-            break;
-        default:
+        } else {
             assert(0);
         }
 
@@ -43,8 +36,7 @@ void Node::InitPins(const std::string& name)
         return front;
     };
 
-    bp::BackendAdapter<taskgraph::ParamType>
-        trans("taskgraph", back2front);
+    bp::BackendAdapter<size_t> trans("taskgraph", back2front);
     trans.InitNodePins(*this, name);
 }
 
