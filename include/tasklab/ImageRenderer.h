@@ -9,7 +9,7 @@
 namespace tasklab
 {
 
-class DebugRenderer
+class ImageRenderer
 {
 public:
     void Draw(const taskgraph::ParamPtr& param) const;
@@ -24,6 +24,6 @@ private:
 
     mutable std::vector<ur::TexturePtr> m_renderable;
 
-}; // DebugRenderer
+}; // ImageRenderer
 
 }

@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\include\tasklab\DebugRenderer.h" />
+    <ClInclude Include="..\..\..\include\tasklab\ImageRenderer.h" />
     <ClInclude Include="..\..\..\include\tasklab\node\DebugDraw.h" />
     <ClInclude Include="..\..\..\include\tasklab\TaskLab.h" />
     <ClInclude Include="..\..\..\include\tasklab\MessageID.h" />
@@ -27,7 +27,7 @@
     <ClInclude Include="..\..\..\include\tasklab\WxPreviewCanvas.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\source\DebugRenderer.cpp" />
+    <ClCompile Include="..\..\..\source\ImageRenderer.cpp" />
     <ClCompile Include="..\..\..\source\TaskLab.cpp" />
     <ClCompile Include="..\..\..\source\Node.cpp" />
     <ClCompile Include="..\..\..\source\PinCallback.cpp" />

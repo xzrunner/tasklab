@@ -1,4 +1,4 @@
-#include "tasklab/DebugRenderer.h"
+#include "tasklab/ImageRenderer.h"
 
 #include <unirender/Blackboard.h>
 #include <unirender/RenderContext.h>
@@ -8,7 +8,7 @@
 namespace tasklab
 {
 
-void DebugRenderer::Draw(const taskgraph::ParamPtr& param) const
+void ImageRenderer::Draw(const taskgraph::ParamPtr& param) const
 {
     if (m_cached != param) {
         m_cached = param;
@@ -20,18 +20,27 @@ void DebugRenderer::Draw(const taskgraph::ParamPtr& param) const
     rc.SetCullMode(ur::CULL_DISABLE);
 
     sm::Matrix2D mt;
-    for (auto& r : m_renderable) {
-        if (r) {
-            pt2::RenderSystem::DrawTexture(*r, sm::rect(512, 512), mt, false);
-            mt.Translate(512 + 10, 0);
+    for (auto& r : m_renderable)
+    {
+        if (!r) {
+            continue;
         }
+
+        sm::rect pos;
+        pos.xmin = pos.ymin = 0;
+        pos.xmax = static_cast<float>(r->Width());
+        pos.ymax = static_cast<float>(r->Height());
+        pt2::RenderSystem::DrawTexture(*r, pos, mt, false);
+
+        const float dx = static_cast<float>(r->Width() + 10);
+        mt.Translate(dx, 0);
     }
 
     rc.SetZTest(ur::DEPTH_LESS_EQUAL);
     rc.SetCullMode(ur::CULL_BACK);
 }
 
-void DebugRenderer::UpdateRenderList() const
+void ImageRenderer::UpdateRenderList() const
 {
     m_renderable.clear();
 
@@ -58,7 +67,7 @@ void DebugRenderer::UpdateRenderList() const
     }
 }
 
-ur::TexturePtr DebugRenderer::CreateTexture(const prim::Bitmap<short>& img)
+ur::TexturePtr ImageRenderer::CreateTexture(const prim::Bitmap<short>& img)
 {
     ur::TexturePtr tex = nullptr;
 

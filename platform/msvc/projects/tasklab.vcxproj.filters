@@ -67,7 +67,7 @@
     <ClInclude Include="..\..\..\include\tasklab\node\DebugDraw.h">
       <Filter>nodes</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\tasklab\DebugRenderer.h">
+    <ClInclude Include="..\..\..\include\tasklab\ImageRenderer.h">
       <Filter>view\preview\renderer</Filter>
     </ClInclude>
   </ItemGroup>
@@ -88,7 +88,7 @@
       <Filter>view\preview</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\TaskLab.cpp" />
-    <ClCompile Include="..\..\..\source\DebugRenderer.cpp">
+    <ClCompile Include="..\..\..\source\ImageRenderer.cpp">
       <Filter>view\preview\renderer</Filter>
     </ClCompile>
   </ItemGroup>
