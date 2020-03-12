@@ -75,7 +75,7 @@ ur::TexturePtr ImageRenderer::CreateTexture(const prim::Bitmap<short>& img)
     const auto h = img.Height();
     const auto c = img.Channels();
 
-    auto& vals = img.GetValues();
+    auto vals = img.GetPixels();
 
     auto& rc = ur::Blackboard::Instance()->GetRenderContext();
     switch (c)
@@ -92,7 +92,7 @@ ur::TexturePtr ImageRenderer::CreateTexture(const prim::Bitmap<short>& img)
         auto dmax = std::numeric_limits<char>::max();
 
         int max = 0;
-        for (size_t i = 0, n = vals.size(); i < n; ++i)
+        for (size_t i = 0, n = w * h * c; i < n; ++i)
         {
             short h = std::min(smax, std::max(static_cast<short>(vals[i] * 10), smin));
             char c = static_cast<char>(static_cast<float>(h - smin) / (smax - smin) * (dmax - dmin) + dmin);
@@ -109,7 +109,7 @@ ur::TexturePtr ImageRenderer::CreateTexture(const prim::Bitmap<short>& img)
     {
         tex = std::make_shared<ur::Texture>();
         std::vector<char> pixels(w * h * c);
-        for (size_t i = 0, n = vals.size(); i < n; ++i) {
+        for (size_t i = 0, n = w * h * c; i < n; ++i) {
             pixels[i] = static_cast<char>(vals[i]);
         }
         auto fmt = c == 3 ? ur::TEXTURE_RGB : ur::TEXTURE_RGBA8;
