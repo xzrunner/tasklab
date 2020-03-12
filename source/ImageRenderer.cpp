@@ -5,6 +5,14 @@
 #include <painting2/RenderSystem.h>
 #include <taskgraph/ParamImpl.h>
 
+namespace
+{
+
+const size_t MAX_DRAW_IMAGE_NUM  = 10;
+const size_t MAX_DRAW_IMAGE_SIZE = 2048;
+
+}
+
 namespace tasklab
 {
 
@@ -52,15 +60,25 @@ void ImageRenderer::UpdateRenderList() const
     {
     case taskgraph::PT_IMAGE:
     {
-        auto img = std::static_pointer_cast<taskgraph::ImageParam>(m_cached);
-        m_renderable.push_back(CreateTexture(img->GetImage()->bmp));
+        auto img_p = std::static_pointer_cast<taskgraph::ImageParam>(m_cached);
+        auto& img = img_p->GetImage()->bmp;
+        if (img.Width() < MAX_DRAW_IMAGE_SIZE && 
+            img.Height() < MAX_DRAW_IMAGE_SIZE) {
+            m_renderable.push_back(CreateTexture(img));
+        }
     }
         break;
     case taskgraph::PT_IMAGE_ARRAY:
     {
-        auto imgs = std::static_pointer_cast<taskgraph::ImageArrayParam>(m_cached);
-        for (auto& img : imgs->GetAllImages()) {
-            m_renderable.push_back(CreateTexture(img->bmp));
+        auto& imgs = std::static_pointer_cast<taskgraph::ImageArrayParam>(m_cached)->GetAllImages();
+        auto num = std::min(imgs.size(), MAX_DRAW_IMAGE_NUM);
+        for (size_t i = 0; i < num; ++i) 
+        {
+            auto& img = imgs[i]->bmp;
+            if (img.Width() < MAX_DRAW_IMAGE_SIZE &&
+                img.Height() < MAX_DRAW_IMAGE_SIZE) {
+                m_renderable.push_back(CreateTexture(img));
+            }
         }
     }
         break;
