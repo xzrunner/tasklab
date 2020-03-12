@@ -3,6 +3,7 @@
 #include "tasklab/Node.h"
 
 #include <taskgraph/task/WriteImage.h>
+#include <taskgraph/task/Group.h>
 
 namespace tasklab
 {

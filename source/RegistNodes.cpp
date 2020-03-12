@@ -27,6 +27,30 @@ rttr::registration::class_<tasklab::node::DebugDraw>("tasklab::debug_draw")
     .constructor<>()
 ;
 
+rttr::registration::class_<tasklab::node::ReadImage>("tasklab::read_img")
+    .constructor<>()
+    .property("filepath", &tasklab::node::ReadImage::m_filepath)
+    (
+	    rttr::metadata(ee0::UIMetaInfoTag(), ee0::UIMetaInfo("Filepath")),
+        rttr::metadata(js::RTTR::FilePathTag(), true),
+        rttr::metadata(ee0::PropOpenFileTag(), ee0::PropOpenFile("*.*"))
+    )
+;
+
+rttr::registration::class_<tasklab::node::WriteImage>("tasklab::write_img")
+    .constructor<>()
+    .property("filepath", &tasklab::node::WriteImage::m_filepath)
+    (
+	    rttr::metadata(ee0::UIMetaInfoTag(), ee0::UIMetaInfo("Filepath")),
+        rttr::metadata(js::RTTR::FilePathTag(), true),
+        rttr::metadata(ee0::PropOpenFileTag(), ee0::PropOpenFile("*.*"))
+    )
+    .property("type", &tasklab::node::WriteImage::m_type)
+    (
+	    rttr::metadata(ee0::UIMetaInfoTag(), ee0::UIMetaInfo("Type"))
+    )
+;
+
 }
 
 namespace tasklab
