@@ -4,8 +4,20 @@
 
 // file
 
+#define PARM_NODE_CLASS FileCompress
+#define PARM_NODE_NAME file_compress
+#include EXE_FILEPATH
+
+#define PARM_NODE_CLASS FilePattern
+#define PARM_NODE_NAME file_pattern
+#include EXE_FILEPATH
+
 #define PARM_NODE_CLASS FileRemove
 #define PARM_NODE_NAME file_remove
+#include EXE_FILEPATH
+
+#define PARM_NODE_CLASS FileUncompress
+#define PARM_NODE_NAME file_uncompress
 #include EXE_FILEPATH
 
 #define PARM_NODE_CLASS MakeDirectory
