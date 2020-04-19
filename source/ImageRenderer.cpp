@@ -1,7 +1,9 @@
 #include "tasklab/ImageRenderer.h"
 
-#include <unirender/Blackboard.h>
-#include <unirender/RenderContext.h>
+#include <unirender2/RenderState.h>
+#include <unirender2/Texture.h>
+#include <unirender2/Device.h>
+#include <unirender2/TextureDescription.h>
 #include <painting2/RenderSystem.h>
 #include <taskgraph/ParamImpl.h>
 
@@ -16,16 +18,17 @@ const size_t MAX_DRAW_IMAGE_SIZE = 2048;
 namespace tasklab
 {
 
-void ImageRenderer::Draw(const taskgraph::ParamPtr& param) const
+void ImageRenderer::Draw(const ur2::Device& dev, ur2::Context& ctx,
+                         const taskgraph::ParamPtr& param) const
 {
     if (m_cached != param) {
         m_cached = param;
-        UpdateRenderList();
+        UpdateRenderList(dev);
     }
 
-    auto& rc = ur::Blackboard::Instance()->GetRenderContext();
-    rc.SetZTest(ur::DEPTH_DISABLE);
-    rc.SetCullMode(ur::CULL_DISABLE);
+    ur2::RenderState rs;
+    rs.depth_test.enabled = false;
+    rs.facet_culling.enabled = false;
 
     sm::Matrix2D mt;
     for (auto& r : m_renderable)
@@ -36,19 +39,16 @@ void ImageRenderer::Draw(const taskgraph::ParamPtr& param) const
 
         sm::rect pos;
         pos.xmin = pos.ymin = 0;
-        pos.xmax = static_cast<float>(r->Width());
-        pos.ymax = static_cast<float>(r->Height());
-        pt2::RenderSystem::DrawTexture(*r, pos, mt, false);
+        pos.xmax = static_cast<float>(r->GetWidth());
+        pos.ymax = static_cast<float>(r->GetHeight());
+        pt2::RenderSystem::DrawTexture(dev, ctx, rs, r, pos, mt, false);
 
-        const float dx = static_cast<float>(r->Width() + 10);
+        const float dx = static_cast<float>(r->GetWidth() + 10);
         mt.Translate(dx, 0);
     }
-
-    rc.SetZTest(ur::DEPTH_LESS_EQUAL);
-    rc.SetCullMode(ur::CULL_BACK);
 }
 
-void ImageRenderer::UpdateRenderList() const
+void ImageRenderer::UpdateRenderList(const ur2::Device& dev) const
 {
     m_renderable.clear();
 
@@ -62,9 +62,9 @@ void ImageRenderer::UpdateRenderList() const
     {
         auto img_p = std::static_pointer_cast<taskgraph::ImageParam>(m_cached);
         auto& img = img_p->GetImage()->bmp;
-        if (img.Width() < MAX_DRAW_IMAGE_SIZE && 
+        if (img.Width() < MAX_DRAW_IMAGE_SIZE &&
             img.Height() < MAX_DRAW_IMAGE_SIZE) {
-            m_renderable.push_back(CreateTexture(img));
+            m_renderable.push_back(CreateTexture(dev, img));
         }
     }
         break;
@@ -72,12 +72,12 @@ void ImageRenderer::UpdateRenderList() const
     {
         auto& imgs = std::static_pointer_cast<taskgraph::ImageArrayParam>(m_cached)->GetAllImages();
         auto num = std::min(imgs.size(), MAX_DRAW_IMAGE_NUM);
-        for (size_t i = 0; i < num; ++i) 
+        for (size_t i = 0; i < num; ++i)
         {
             auto& img = imgs[i]->bmp;
             if (img.Width() < MAX_DRAW_IMAGE_SIZE &&
                 img.Height() < MAX_DRAW_IMAGE_SIZE) {
-                m_renderable.push_back(CreateTexture(img));
+                m_renderable.push_back(CreateTexture(dev, img));
             }
         }
     }
@@ -85,9 +85,10 @@ void ImageRenderer::UpdateRenderList() const
     }
 }
 
-ur::TexturePtr ImageRenderer::CreateTexture(const prim::Bitmap<short>& img)
+ur2::TexturePtr ImageRenderer::CreateTexture(const ur2::Device& dev,
+                                             const prim::Bitmap<short>& img)
 {
-    ur::TexturePtr tex = nullptr;
+    ur2::TexturePtr tex = nullptr;
 
     const auto w = img.Width();
     const auto h = img.Height();
@@ -95,7 +96,6 @@ ur::TexturePtr ImageRenderer::CreateTexture(const prim::Bitmap<short>& img)
 
     auto vals = img.GetPixels();
 
-    auto& rc = ur::Blackboard::Instance()->GetRenderContext();
     switch (c)
     {
     case 1:
@@ -118,20 +118,27 @@ ur::TexturePtr ImageRenderer::CreateTexture(const prim::Bitmap<short>& img)
                 pixels[i * 3 + j] = c;
             }
         }
-        tex = std::make_shared<ur::Texture>();
-        tex->Upload(&rc, w, h, ur::TEXTURE_RGB, pixels.data());
+        ur2::TextureDescription desc;
+        desc.target = ur2::TextureTarget::Texture2D;
+        desc.width  = w;
+        desc.height = h;
+        desc.format = ur2::TextureFormat::RGB;
+        tex = dev.CreateTexture(desc, pixels.data());
     }
         break;
     case 3:
     case 4:
     {
-        tex = std::make_shared<ur::Texture>();
         std::vector<char> pixels(w * h * c);
         for (size_t i = 0, n = w * h * c; i < n; ++i) {
             pixels[i] = static_cast<char>(vals[i]);
         }
-        auto fmt = c == 3 ? ur::TEXTURE_RGB : ur::TEXTURE_RGBA8;
-        tex->Upload(&rc, w, h, fmt, pixels.data());
+        ur2::TextureDescription desc;
+        desc.target = ur2::TextureTarget::Texture2D;
+        desc.width  = w;
+        desc.height = h;
+        desc.format = c == 3 ? ur2::TextureFormat::RGB : ur2::TextureFormat::RGBA8;
+        tex = dev.CreateTexture(desc, pixels.data());
     }
         break;
     }

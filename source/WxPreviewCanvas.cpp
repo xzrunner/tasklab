@@ -6,10 +6,12 @@
 
 #include <ee0/WxStagePage.h>
 #include <ee0/SubjectMgr.h>
+#include <ee0/RenderContext.h>
 #include <ee2/CamControlOP.h>
 #include <blueprint/Node.h>
 #include <blueprint/CompNode.h>
 
+#include <unirender2/RenderState.h>
 #include <painting2/OrthoCamera.h>
 #include <painting2/RenderSystem.h>
 #include <painting3/MaterialMgr.h>
@@ -33,9 +35,9 @@ const uint32_t LIGHT_SELECT_COLOR = 0x88000088;
 namespace tasklab
 {
 
-WxPreviewCanvas::WxPreviewCanvas(ee0::WxStagePage* stage, ECS_WORLD_PARAM
+WxPreviewCanvas::WxPreviewCanvas(const ur2::Device& dev, ee0::WxStagePage* stage, ECS_WORLD_PARAM
                                  const ee0::RenderContext& rc)
-    : ee3::WxStageCanvas(stage, ECS_WORLD_VAR &rc, nullptr, true)
+    : ee3::WxStageCanvas(dev, stage, ECS_WORLD_VAR &rc, nullptr, true)
 {
     m_cam3d = m_camera;
     m_cam2d = std::make_shared<pt2::OrthoCamera>();
@@ -134,7 +136,8 @@ void WxPreviewCanvas::DrawForeground3D() const
 
     DrawSelected(pt, cam_mat, rc);
 
-    pt2::RenderSystem::DrawPainter(pt);
+    ur2::RenderState rs;
+    pt2::RenderSystem::DrawPainter(m_dev, *GetRenderContext().ur_ctx, rs, pt);
 }
 
 void WxPreviewCanvas::DrawForeground2D() const
@@ -186,7 +189,7 @@ void WxPreviewCanvas::DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
             const int idx = src_pin->GetPosIdx();
             assert(idx >= 0 && idx < static_cast<int>(src_vals.size()));
 
-            m_img_rd.Draw(src_vals[idx]);
+            m_img_rd.Draw(m_dev, *GetRenderContext().ur_ctx, src_vals[idx]);
 
             return;
         }
@@ -204,7 +207,7 @@ void WxPreviewCanvas::DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
             if (type == taskgraph::PT_IMAGE ||
                 type == taskgraph::PT_IMAGE_ARRAY)
             {
-                m_img_rd.Draw(val);
+                m_img_rd.Draw(m_dev, *GetRenderContext().ur_ctx, val);
                 return;
             }
         }
