@@ -4,6 +4,7 @@
 #include <unirender2/Texture.h>
 #include <unirender2/Device.h>
 #include <unirender2/TextureDescription.h>
+#include <unirender2/Factory.h>
 #include <painting2/RenderSystem.h>
 #include <taskgraph/ParamImpl.h>
 
@@ -26,16 +27,7 @@ void ImageRenderer::Draw(const ur2::Device& dev, ur2::Context& ctx,
         UpdateRenderList(dev);
     }
 
-    ur2::RenderState rs;
-    rs.depth_test.enabled = false;
-    rs.facet_culling.enabled = false;
-
-    rs.blending.enabled = true;
-    rs.blending.separately = false;
-    rs.blending.src = ur2::BlendingFactor::One;
-    rs.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
-    rs.blending.equation = ur2::BlendEquation::Add;
-
+    auto rs = ur2::DefaultRenderState2D();
     sm::Matrix2D mt;
     for (auto& r : m_renderable)
     {
