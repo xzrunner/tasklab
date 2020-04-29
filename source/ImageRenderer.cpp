@@ -1,10 +1,10 @@
 #include "tasklab/ImageRenderer.h"
 
-#include <unirender2/RenderState.h>
-#include <unirender2/Texture.h>
-#include <unirender2/Device.h>
-#include <unirender2/TextureDescription.h>
-#include <unirender2/Factory.h>
+#include <unirender/RenderState.h>
+#include <unirender/Texture.h>
+#include <unirender/Device.h>
+#include <unirender/TextureDescription.h>
+#include <unirender/Factory.h>
 #include <painting2/RenderSystem.h>
 #include <taskgraph/ParamImpl.h>
 
@@ -19,7 +19,7 @@ const size_t MAX_DRAW_IMAGE_SIZE = 2048;
 namespace tasklab
 {
 
-void ImageRenderer::Draw(const ur2::Device& dev, ur2::Context& ctx,
+void ImageRenderer::Draw(const ur::Device& dev, ur::Context& ctx,
                          const taskgraph::ParamPtr& param) const
 {
     if (m_cached != param) {
@@ -27,7 +27,7 @@ void ImageRenderer::Draw(const ur2::Device& dev, ur2::Context& ctx,
         UpdateRenderList(dev);
     }
 
-    auto rs = ur2::DefaultRenderState2D();
+    auto rs = ur::DefaultRenderState2D();
     sm::Matrix2D mt;
     for (auto& r : m_renderable)
     {
@@ -46,7 +46,7 @@ void ImageRenderer::Draw(const ur2::Device& dev, ur2::Context& ctx,
     }
 }
 
-void ImageRenderer::UpdateRenderList(const ur2::Device& dev) const
+void ImageRenderer::UpdateRenderList(const ur::Device& dev) const
 {
     m_renderable.clear();
 
@@ -83,10 +83,10 @@ void ImageRenderer::UpdateRenderList(const ur2::Device& dev) const
     }
 }
 
-ur2::TexturePtr ImageRenderer::CreateTexture(const ur2::Device& dev,
+ur::TexturePtr ImageRenderer::CreateTexture(const ur::Device& dev,
                                              const prim::Bitmap<short>& img)
 {
-    ur2::TexturePtr tex = nullptr;
+    ur::TexturePtr tex = nullptr;
 
     const auto w = img.Width();
     const auto h = img.Height();
@@ -116,11 +116,11 @@ ur2::TexturePtr ImageRenderer::CreateTexture(const ur2::Device& dev,
                 pixels[i * 3 + j] = c;
             }
         }
-        ur2::TextureDescription desc;
-        desc.target = ur2::TextureTarget::Texture2D;
+        ur::TextureDescription desc;
+        desc.target = ur::TextureTarget::Texture2D;
         desc.width  = w;
         desc.height = h;
-        desc.format = ur2::TextureFormat::RGB;
+        desc.format = ur::TextureFormat::RGB;
         tex = dev.CreateTexture(desc, pixels.data());
     }
         break;
@@ -131,11 +131,11 @@ ur2::TexturePtr ImageRenderer::CreateTexture(const ur2::Device& dev,
         for (size_t i = 0, n = w * h * c; i < n; ++i) {
             pixels[i] = static_cast<char>(vals[i]);
         }
-        ur2::TextureDescription desc;
-        desc.target = ur2::TextureTarget::Texture2D;
+        ur::TextureDescription desc;
+        desc.target = ur::TextureTarget::Texture2D;
         desc.width  = w;
         desc.height = h;
-        desc.format = c == 3 ? ur2::TextureFormat::RGB : ur2::TextureFormat::RGBA8;
+        desc.format = c == 3 ? ur::TextureFormat::RGB : ur::TextureFormat::RGBA8;
         tex = dev.CreateTexture(desc, pixels.data());
     }
         break;
