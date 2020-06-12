@@ -183,7 +183,7 @@ void WxPreviewCanvas::DrawSelected(tess::Painter& pt, const sm::mat4& cam_mat,
         {
             assert(conns.size() == 1);
             auto src_pin = conns[0]->GetFrom();
-            auto eval = m_graph_page->GetEval();
+            auto eval = m_graph_page->GetSceneTree()->GetCurrEval();
             auto back = std::static_pointer_cast<taskgraph::Task>(eval->QueryBackNode(src_pin->GetParent()));
             auto& src_vals = back->GetAllValues();
             const int idx = src_pin->GetPosIdx();
@@ -224,7 +224,7 @@ bp::NodePtr WxPreviewCanvas::GetSelectedNode() const
         return nullptr;
     }
 
-    auto eval = m_graph_page->GetEval();
+    auto eval = m_graph_page->GetSceneTree()->GetCurrEval();
     if (!eval) {
         return nullptr;
     }
@@ -244,7 +244,7 @@ taskgraph::TaskPtr WxPreviewCanvas::GetSelectedTask() const
         return nullptr;
     }
 
-    auto eval = m_graph_page->GetEval();
+    auto eval = m_graph_page->GetSceneTree()->GetCurrEval();
     if (!eval) {
         return nullptr;
     }
